@@ -1,21 +1,150 @@
-<!DOCTYPE html> <html> <head> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Symbol Transformation Engine</title> <style> body {   font-family: Arial, sans-serif;   padding: 20px;   background: #111;   color: white;   text-align: center; } textarea {   width: 95%;   height: 120px;   font-size: 16px;   margin: 10px 0;   padding: 10px;   border-radius: 10px; } button {   padding: 10px 15px;   margin: 5px;   border-radius: 8px;   border: none;   font-size: 14px;   cursor: pointer; } #output {   margin-top: 20px;   font-size: 20px;   padding: 15px;   background: #222;   border-radius: 10px;   min-height: 60px; } </style> </head> <body>
- 
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Symbol Transformation Engine</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #111;
+  color: white;
+  text-align: center;
+}
+textarea {
+  width: 95%;
+  height: 120px;
+  font-size: 16px;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
+}
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+#output {
+  margin-top: 20px;
+  font-size: 20px;
+  padding: 15px;
+  background: #222;
+  border-radius: 10px;
+  min-height: 60px;
+}
+</style>
+</head>
+<body>
+ 
 <h2>Symbol Transformation Engine</h2>
- 
+ 
 <textarea id="inputText" placeholder="Type text here..."></textarea><br>
- 
-<button onclick="transform('original')">Original</button> <button onclick="transform('egyptian')">Egyptian Style</button> <button onclick="transform('gael')">GAEL Matrix</button>
- 
+ 
+<button onclick="transform('original')">Original</button>
+<button onclick="transform('egyptian')">Egyptian Style</button>
+<button onclick="transform('gael')">GAEL Matrix</button>
+ 
 <div id="output"></div>
- 
-<script> // --- Egyptian style symbolic approximations --- const egyptianMap = {   "sun": "𓇳",   "god": "𓁹",   "king": "𓀭",   "water": "𓈗",   "man": "𓀀",   "woman": "𓁐",   "life": "𓋹",   "earth": "𓇯",   "sky": "𓇼",   "house": "𓉐" };
- 
-// --- GAEL research-based symbolic placeholders --- // You can replace these with your own interpretations const gaelMap = {   "sun": "GA-SHINE-1",   "god": "EL-PRIME-3",   "king": "ZUB-ZUL",   "water": "FLU-ESS",   "man": "AD-AM",   "woman": "EVE-ISH",   "life": "ZOE-A",   "earth": "TERRA-K",   "sky": "FIRM-EL",   "house": "DOM-U" };
- 
-function transform(mode) {   let text = document.getElementById("inputText").value.toLowerCase();   let words = text.split(" ");   let result = "";
- 
-  words.forEach(word => {     if (mode === "egyptian" && egyptianMap[word]) {       result += egyptianMap[word] + " ";     }     else if (mode === "gael" && gaelMap[word]) {       result += gaelMap[word] + " ";     }     else {       result += word + " ";     }   });
- 
-  document.getElementById("output").innerText = result; } </script>
- 
-</body> </html>
+ 
+<script>
+// --- Single-word Egyptian symbols ---
+const egyptianMap = {
+  "sun": "𓇳",
+  "god": "𓁹",
+  "king": "𓀭",
+  "water": "𓈗",
+  "man": "𓀀",
+  "woman": "𓁐",
+  "life": "𓋹",
+  "earth": "𓇯",
+  "sky": "𓇼",
+  "house": "𓉐"
+};
+ 
+// --- Single-word GAEL symbols ---
+const gaelMap = {
+  "sun": "GA-SHINE-1",
+  "god": "EL-PRIME-3",
+  "king": "ZUB-ZUL",
+  "water": "FLU-ESS",
+  "man": "AD-AM",
+  "woman": "EVE-ISH",
+  "life": "ZOE-A",
+  "earth": "TERRA-K",
+  "sky": "FIRM-EL",
+  "house": "DOM-U"
+};
+ 
+// --- Multi-word symbolic phrases ---
+const phraseMap = {
+  "tree of life": "tree_of_life",
+  "son of man": "divine_mediator",
+  "pillar of fire": "divine_presence",
+  "land of the dead": "underworld_realm"
+};
+ 
+// --- Concept layer Egyptian symbols ---
+const conceptEgyptian = {
+  "tree_of_life": "𓇳𓋹",
+  "divine_mediator": "𓀭𓀀",
+  "divine_presence": "𓇳𓁹",
+  "underworld_realm": "𓇯𓈗"
+};
+ 
+// --- Concept layer GAEL symbols ---
+const conceptGael = {
+  "tree_of_life": "CRANN-BEATHA",
+  "divine_mediator": "MAC-EL",
+  "divine_presence": "EL-FIRE",
+  "underworld_realm": "TIR-MARB"
+};
+ 
+// --- Transformation function ---
+function transform(mode) {
+  let text = document.getElementById("inputText").value.toLowerCase();
+ 
+  // 🔹 Step 1: Replace phrases with tokens
+  for (let phrase in phraseMap) {
+    let token = phraseMap[phrase];
+    text = text.replaceAll(phrase, token);
+  }
+ 
+  // 🔹 Step 2: Split into words/tokens
+  let words = text.split(/\s+/);
+  let result = "";
+ 
+  // 🔹 Step 3: Map words/tokens to symbols
+  words.forEach(word => {
+ 
+    // Concept layer first (phrases)
+    if (mode === "egyptian" && conceptEgyptian[word]) {
+      result += conceptEgyptian[word] + " ";
+    } 
+    else if (mode === "gael" && conceptGael[word]) {
+      result += conceptGael[word] + " ";
+    }
+ 
+    // Single-word fallback
+    else if (mode === "egyptian" && egyptianMap[word]) {
+      result += egyptianMap[word] + " ";
+    } 
+    else if (mode === "gael" && gaelMap[word]) {
+      result += gaelMap[word] + " ";
+    }
+ 
+    // Original text fallback
+    else {
+      result += word + " ";
+    }
+  });
+ 
+  // 🔹 Step 4: Display result
+  document.getElementById("output").innerText = result.trim();
+}
+</script>
+ 
+</body>
+</html>
