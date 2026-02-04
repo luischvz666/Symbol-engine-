@@ -53,7 +53,7 @@ button {
 <div id="gaelSymbol" class="box"></div>
 <div id="gaelMeaning" class="box meaning"></div>
 <script>
-const egyptianWords = {
+var egyptianWords = {
   "sun": "𓇳",
   "life": "𓋹",
   "earth": "𓇯",
@@ -61,7 +61,7 @@ const egyptianWords = {
   "god": "𓁹"
 };
 
-const gaelWords = {
+var gaelWords = {
   "sun": "GA-SHINE-1",
   "life": "ZOE-A",
   "earth": "TERRA-K",
@@ -69,51 +69,55 @@ const gaelWords = {
   "god": "EL-PRIME-3"
 };
 
-const egyptianPhrases = {
+var egyptianPhrases = {
   "sun rises": "𓇳𓂋𓏏",
   "gives life": "𓋹𓂝",
   "over earth": "𓇼𓇯"
 };
 
-const gaelPhrases = {
+var gaelPhrases = {
   "sun rises": "SOL-ASCEND",
   "gives life": "VITA-FLOW",
   "over earth": "CELEST-TERRA"
 };
 
+function replacePhrases(text, dictionary) {
+  for (var phrase in dictionary) {
+    while (text.indexOf(phrase) !== -1) {
+      text = text.replace(phrase, dictionary[phrase]);
+    }
+  }
+  return text;
+}
+
+function replaceWords(text, dictionary) {
+  var words = text.split(" ");
+  for (var i = 0; i < words.length; i++) {
+    var clean = words[i].replace(/[.,!?]/g, "");
+    if (dictionary[clean]) {
+      words[i] = dictionary[clean];
+    }
+  }
+  return words.join(" ");
+}
+
 function transform() {
-  let text = document.getElementById("inputText").value.toLowerCase();
+  var text = document.getElementById("inputText").value.toLowerCase();
 
-  let egyptOut = text;
-  let gaelOut = text;
+  var egyptOut = replacePhrases(text, egyptianPhrases);
+  egyptOut = replaceWords(egyptOut, egyptianWords);
 
-  // Phrase replacement FIRST
-  for (let phrase in egyptianPhrases) {
-    egyptOut = egyptOut.split(phrase).join(egyptianPhrases[phrase]);
-  }
-  for (let phrase in gaelPhrases) {
-    gaelOut = gaelOut.split(phrase).join(gaelPhrases[phrase]);
-  }
+  var gaelOut = replacePhrases(text, gaelPhrases);
+  gaelOut = replaceWords(gaelOut, gaelWords);
 
-  // Word replacement SECOND
-  egyptOut = egyptOut.split(" ").map(word => {
-    let clean = word.replace(/[.,!?]/g, "");
-    return egyptianWords[clean] || word;
-  }).join(" ");
+  document.getElementById("egyptSymbol").innerHTML = egyptOut;
+  document.getElementById("egyptMeaning").innerHTML = "Egyptian Concept Mapping";
 
-  gaelOut = gaelOut.split(" ").map(word => {
-    let clean = word.replace(/[.,!?]/g, "");
-    return gaelWords[clean] || word;
-  }).join(" ");
-
-  // Output
-  document.getElementById("egyptSymbol").innerText = egyptOut;
-  document.getElementById("egyptMeaning").innerText = "Egyptian Concept Mapping";
-
-  document.getElementById("gaelSymbol").innerText = gaelOut;
-  document.getElementById("gaelMeaning").innerText = "GAEL Concept Mapping";
+  document.getElementById("gaelSymbol").innerHTML = gaelOut;
+  document.getElementById("gaelMeaning").innerHTML = "GAEL Concept Mapping";
 }
 </script>
+
 
 
 </body>
