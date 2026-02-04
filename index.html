@@ -69,9 +69,8 @@ const gaelWords = {
   "god": "EL-PRIME-3"
 };
 
-// Phrase meanings (higher-level concepts)
 const egyptianPhrases = {
-  "sun rises": "𓇳𓂋𓏏",  // symbolic combo
+  "sun rises": "𓇳𓂋𓏏",
   "gives life": "𓋹𓂝",
   "over earth": "𓇼𓇯"
 };
@@ -82,35 +81,37 @@ const gaelPhrases = {
   "over earth": "CELEST-TERRA"
 };
 
-function transform(mode) {
+function transform() {
   let text = document.getElementById("inputText").value.toLowerCase();
-  let output = text;
 
-  // Phrase replacement first
-  if (mode === "egyptian") {
-    for (let phrase in egyptianPhrases) {
-      output = output.replaceAll(phrase, egyptianPhrases[phrase]);
-    }
+  let egyptOut = text;
+  let gaelOut = text;
+
+  // Phrase replacement FIRST
+  for (let phrase in egyptianPhrases) {
+    egyptOut = egyptOut.split(phrase).join(egyptianPhrases[phrase]);
+  }
+  for (let phrase in gaelPhrases) {
+    gaelOut = gaelOut.split(phrase).join(gaelPhrases[phrase]);
   }
 
-  if (mode === "gael") {
-    for (let phrase in gaelPhrases) {
-      output = output.replaceAll(phrase, gaelPhrases[phrase]);
-    }
-  }
-
-  // Word replacement second
-  let words = output.split(" ");
-  output = words.map(word => {
+  // Word replacement SECOND
+  egyptOut = egyptOut.split(" ").map(word => {
     let clean = word.replace(/[.,!?]/g, "");
-
-    if (mode === "egyptian" && egyptianWords[clean]) return egyptianWords[clean];
-    if (mode === "gael" && gaelWords[clean]) return gaelWords[clean];
-
-    return word;
+    return egyptianWords[clean] || word;
   }).join(" ");
 
-  document.getElementById("output").innerText = output;
+  gaelOut = gaelOut.split(" ").map(word => {
+    let clean = word.replace(/[.,!?]/g, "");
+    return gaelWords[clean] || word;
+  }).join(" ");
+
+  // Output
+  document.getElementById("egyptSymbol").innerText = egyptOut;
+  document.getElementById("egyptMeaning").innerText = "Egyptian Concept Mapping";
+
+  document.getElementById("gaelSymbol").innerText = gaelOut;
+  document.getElementById("gaelMeaning").innerText = "GAEL Concept Mapping";
 }
 </script>
 
