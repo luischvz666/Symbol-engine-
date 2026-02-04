@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,11 +34,11 @@ button {
   padding: 15px;
   border-radius: 10px;
   background: #222;
+  word-wrap: break-word;
+  text-align: left;
 }
-.meaning {
-  color: #9fe3ff;
-  font-size: 15px;
-}
+.meaning { color: #9fe3ff; }
+hr { border: 0; border-top: 1px solid #444; }
 </style>
 </head>
 
@@ -52,73 +53,129 @@ button {
 <div id="egyptMeaning" class="box meaning"></div>
 <div id="gaelSymbol" class="box"></div>
 <div id="gaelMeaning" class="box meaning"></div>
+
 <script>
-var egyptianWords = {
-  "sun": "𓇳",
-  "life": "𓋹",
-  "earth": "𓇯",
-  "sky": "𓇼",
-  "god": "𓁹"
+// ---------------- EGYPTIAN MAPS ----------------
+
+const egyptianWords = {
+  "sun": { symbol: "𓇳", meaning: "Solar disk; visible light source" },
+  "life": { symbol: "𓋹", meaning: "Ankh; life force" },
+  "earth": { symbol: "𓇯", meaning: "Land / earth plane" },
+  "sky": { symbol: "𓇼", meaning: "Heavens / celestial realm" },
+  "god": { symbol: "𓁹", meaning: "Divine being or deity" }
 };
 
-var gaelWords = {
-  "sun": "GA-SHINE-1",
-  "life": "ZOE-A",
-  "earth": "TERRA-K",
-  "sky": "FIRM-EL",
-  "god": "EL-PRIME-3"
+const egyptianPhrases = {
+  "sun rises": { symbol: "𓇳𓂋𓏏", meaning: "Solar rising cycle" },
+  "gives life": { symbol: "𓋹𓂝", meaning: "Life-giving force" },
+  "over earth": { symbol: "𓇼𓇯", meaning: "Heaven above earth" }
 };
 
-var egyptianPhrases = {
-  "sun rises": "𓇳𓂋𓏏",
-  "gives life": "𓋹𓂝",
-  "over earth": "𓇼𓇯"
-};
+// ---------------- GAEL CONCEPT MAP ----------------
 
-var gaelPhrases = {
-  "sun rises": "SOL-ASCEND",
-  "gives life": "VITA-FLOW",
-  "over earth": "CELEST-TERRA"
-};
-
-function replacePhrases(text, dictionary) {
-  for (var phrase in dictionary) {
-    while (text.indexOf(phrase) !== -1) {
-      text = text.replace(phrase, dictionary[phrase]);
-    }
+const gaelConcepts = {
+  "sun": {
+    term: "Governing Light",
+    degree: "2nd Degree Ruling Order",
+    function: "Measures time and seasons",
+    role: "A throne that governs a system",
+    principle: "Receives power from a higher star"
+  },
+  "earth": {
+    term: "Fixed Planetary Body",
+    degree: "Lower Kingdom Sphere",
+    function: "Habitation for mortal probation",
+    role: "Receives rule from higher governing lights",
+    principle: "Sustained by celestial hierarchy"
+  },
+  "life": {
+    term: "Animating Intelligence",
+    degree: "Spirit Principle",
+    function: "Quickens organized matter",
+    role: "Connects body and eternal intelligence",
+    principle: "Flows from higher orders"
+  },
+  "sky": {
+    term: "Celestial Expanse",
+    degree: "Governing Field",
+    function: "Region of ruling bodies",
+    role: "Contains the orders of stars",
+    principle: "Domain of higher intelligences"
+  },
+  "god": {
+    term: "Supreme Governing Intelligence",
+    degree: "Highest Throne",
+    function: "Source of power and law",
+    role: "Rules all subordinate orders",
+    principle: "Self-existent intelligence"
   }
-  return text;
+};
+
+// ---------------- ENGINE ----------------
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function replaceWords(text, dictionary) {
-  var words = text.split(" ");
-  for (var i = 0; i < words.length; i++) {
-    var clean = words[i].replace(/[.,!?]/g, "");
-    if (dictionary[clean]) {
-      words[i] = dictionary[clean];
+function replaceEgyptian(text) {
+  let symbols = text;
+  let meanings = "";
+
+  // Phrase first
+  Object.keys(egyptianPhrases).forEach(p => {
+    const regex = new RegExp("\\b" + escapeRegExp(p) + "\\b", "gi");
+    if (regex.test(text)) {
+      symbols = symbols.replace(regex, egyptianPhrases[p].symbol);
+      meanings += `<b>${p.toUpperCase()}</b>: ${egyptianPhrases[p].meaning}<hr>`;
     }
-  }
-  return words.join(" ");
+  });
+
+  // Words
+  Object.keys(egyptianWords).forEach(w => {
+    const regex = new RegExp("\\b" + escapeRegExp(w) + "\\b", "gi");
+    if (regex.test(text)) {
+      symbols = symbols.replace(regex, egyptianWords[w].symbol);
+      meanings += `<b>${w.toUpperCase()}</b>: ${egyptianWords[w].meaning}<hr>`;
+    }
+  });
+
+  return { symbols, meanings };
+}
+
+function renderGaelMeaning(text) {
+  let output = "";
+
+  Object.keys(gaelConcepts).forEach(word => {
+    const regex = new RegExp("\\b" + escapeRegExp(word) + "\\b", "gi");
+    if (regex.test(text)) {
+      let c = gaelConcepts[word];
+      output += `
+      <b>${word.toUpperCase()}</b><br>
+      GAEL Term: ${c.term}<br>
+      Degree: ${c.degree}<br>
+      Function: ${c.function}<br>
+      Role: ${c.role}<br>
+      Principle: ${c.principle}
+      <hr>`;
+    }
+  });
+
+  if (!output) output = "No GAEL cosmological concepts detected.";
+  return output;
 }
 
 function transform() {
-  var text = document.getElementById("inputText").value.toLowerCase();
+  let text = document.getElementById("inputText").value.toLowerCase();
 
-  var egyptOut = replacePhrases(text, egyptianPhrases);
-  egyptOut = replaceWords(egyptOut, egyptianWords);
+  let egypt = replaceEgyptian(text);
 
-  var gaelOut = replacePhrases(text, gaelPhrases);
-  gaelOut = replaceWords(gaelOut, gaelWords);
+  document.getElementById("egyptSymbol").innerHTML = egypt.symbols;
+  document.getElementById("egyptMeaning").innerHTML = egypt.meanings || "No Egyptian symbols detected.";
 
-  document.getElementById("egyptSymbol").innerHTML = egyptOut;
-  document.getElementById("egyptMeaning").innerHTML = "Egyptian Concept Mapping";
-
-  document.getElementById("gaelSymbol").innerHTML = gaelOut;
-  document.getElementById("gaelMeaning").innerHTML = "GAEL Concept Mapping";
+  document.getElementById("gaelSymbol").innerHTML = "GAEL Cosmological Structure";
+  document.getElementById("gaelMeaning").innerHTML = renderGaelMeaning(text);
 }
 </script>
-
-
 
 </body>
 </html>
