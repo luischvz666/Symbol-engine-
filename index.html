@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Symbol Transformation Engine</title>
+<title>Symbol Meaning Matrix</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -27,124 +28,137 @@ button {
   font-size: 14px;
   cursor: pointer;
 }
-#output {
-  margin-top: 20px;
-  font-size: 20px;
+.box {
+  margin-top: 15px;
   padding: 15px;
-  background: #222;
   border-radius: 10px;
-  min-height: 60px;
+  background: #222;
+}
+.meaning {
+  color: #9fe3ff;
+  font-size: 15px;
 }
 </style>
 </head>
+
 <body>
- 
-<h2>Symbol Transformation Engine</h2>
- 
-<textarea id="inputText" placeholder="Type text here..."></textarea><br>
- 
-<button onclick="transform('original')">Original</button>
-<button onclick="transform('egyptian')">Egyptian Style</button>
-<button onclick="transform('gael')">GAEL Matrix</button>
- 
-<div id="output"></div>
- 
+
+<h2>Symbol Meaning Matrix Engine</h2>
+
+<textarea id="inputText" placeholder="Type English words or phrases..."></textarea><br>
+<button onclick="transform()">Interpret</button>
+
+<div id="egyptSymbol" class="box"></div>
+<div id="egyptMeaning" class="box meaning"></div>
+<div id="gaelSymbol" class="box"></div>
+<div id="gaelMeaning" class="box meaning"></div>
+
 <script>
-// --- Single-word Egyptian symbols ---
-const egyptianMap = {
-  "sun": "𓇳",
-  "god": "𓁹",
-  "king": "𓀭",
-  "water": "𓈗",
-  "man": "𓀀",
-  "woman": "𓁐",
-  "life": "𓋹",
-  "earth": "𓇯",
-  "sky": "𓇼",
-  "house": "𓉐"
-};
- 
-// --- Single-word GAEL symbols ---
-const gaelMap = {
-  "sun": "GA-SHINE-1",
-  "god": "EL-PRIME-3",
-  "king": "ZUB-ZUL",
-  "water": "FLU-ESS",
-  "man": "AD-AM",
-  "woman": "EVE-ISH",
-  "life": "ZOE-A",
-  "earth": "TERRA-K",
-  "sky": "FIRM-EL",
-  "house": "DOM-U"
-};
- 
-// --- Multi-word symbolic phrases ---
+
+// ================= PHRASE MAP =================
 const phraseMap = {
   "tree of life": "tree_of_life",
-  "son of man": "divine_mediator",
-  "pillar of fire": "divine_presence",
-  "land of the dead": "underworld_realm"
+  "son of man": "son_of_man",
+  "pillar of fire": "pillar_of_fire",
+  "land of the dead": "underworld"
 };
- 
-// --- Concept layer Egyptian symbols ---
-const conceptEgyptian = {
+
+// ================= EGYPTIAN SYMBOLS =================
+const egyptianMap = {
+  "sun": "𓇳",
+  "life": "𓋹",
+  "man": "𓀀",
+  "king": "𓀭",
+  "water": "𓈗",
   "tree_of_life": "𓇳𓋹",
-  "divine_mediator": "𓀭𓀀",
-  "divine_presence": "𓇳𓁹",
-  "underworld_realm": "𓇯𓈗"
+  "son_of_man": "𓀀𓁹",
+  "pillar_of_fire": "𓇳𓁹",
+  "underworld": "𓇯𓈗"
 };
- 
-// --- Concept layer GAEL symbols ---
-const conceptGael = {
+
+const egyptMeaning = {
+  "sun": "Solar disk (Ra), source of divine light and order",
+  "life": "Ankh symbol meaning life, vitality, divine breath",
+  "man": "Seated man determinative indicating a human being",
+  "king": "Sacred ruler, divine kingship principle",
+  "water": "Primordial waters (Nun), source of creation",
+  "tree_of_life": "Cosmic life source joining heaven and earth",
+  "son_of_man": "Divine-human intermediary figure",
+  "pillar_of_fire": "Visible manifestation of divine presence",
+  "underworld": "Duat, realm of the dead and transformation"
+};
+
+// ================= GAEL TERMS =================
+const gaelMap = {
+  "sun": "GA-SHINE-1",
+  "life": "ZOE-A",
+  "man": "AD-AM",
+  "king": "ZUB-ZUL",
+  "water": "FLU-ESS",
   "tree_of_life": "CRANN-BEATHA",
-  "divine_mediator": "MAC-EL",
-  "divine_presence": "EL-FIRE",
-  "underworld_realm": "TIR-MARB"
+  "son_of_man": "MAC-EL",
+  "pillar_of_fire": "EL-FIRE",
+  "underworld": "TIR-MARB"
 };
- 
-// --- Transformation function ---
-function transform(mode) {
+
+const gaelMeaning = {
+  "GA-SHINE-1": "Primordial source light / creative radiance",
+  "ZOE-A": "Eternal life-force / animating essence",
+  "AD-AM": "Embodied intelligence / first consciousness",
+  "ZUB-ZUL": "Anointed governing intelligence",
+  "FLU-ESS": "Spiritual flow / living current",
+  "CRANN-BEATHA": "Axis of life / cosmic tree",
+  "MAC-EL": "Divine offspring / mediator",
+  "EL-FIRE": "Manifest presence of divine power",
+  "TIR-MARB": "Realm beyond life / transformative underworld"
+};
+
+// ================= ENGINE =================
+function transform() {
   let text = document.getElementById("inputText").value.toLowerCase();
- 
-  // 🔹 Step 1: Replace phrases with tokens
+
+  // Replace phrases first
   for (let phrase in phraseMap) {
-    let token = phraseMap[phrase];
-    text = text.replaceAll(phrase, token);
+    text = text.replaceAll(phrase, phraseMap[phrase]);
   }
- 
-  // 🔹 Step 2: Split into words/tokens
+
   let words = text.split(/\s+/);
-  let result = "";
- 
-  // 🔹 Step 3: Map words/tokens to symbols
+
+  let egyptSym="", egyptMean="", gaelSym="", gaelMean="";
+
   words.forEach(word => {
- 
-    // Concept layer first (phrases)
-    if (mode === "egyptian" && conceptEgyptian[word]) {
-      result += conceptEgyptian[word] + " ";
-    } 
-    else if (mode === "gael" && conceptGael[word]) {
-      result += conceptGael[word] + " ";
+
+    if (egyptianMap[word]) {
+      egyptSym += egyptianMap[word] + " ";
+      egyptMean += egyptMeaning[word] + " | ";
     }
- 
-    // Single-word fallback
-    else if (mode === "egyptian" && egyptianMap[word]) {
-      result += egyptianMap[word] + " ";
-    } 
-    else if (mode === "gael" && gaelMap[word]) {
-      result += gaelMap[word] + " ";
+
+    if (gaelMap[word]) {
+      let g = gaelMap[word];
+      gaelSym += g + " ";
+      gaelMean += gaelMeaning[g] + " | ";
     }
- 
-    // Original text fallback
-    else {
-      result += word + " ";
-    }
+
   });
- 
-  // 🔹 Step 4: Display result
-  document.getElementById("output").innerText = result.trim();
+
+  document.getElementById("egyptSymbol").innerText =
+    "Egyptian Symbols: " + egyptSym.trim();
+
+  document.getElementById("egyptMeaning").innerText =
+    "Egyptologist Meaning: " + egyptMean.trim();
+
+  document.getElementById("gaelSymbol").innerText =
+    "GAEL Vocabulary: " + gaelSym.trim();
+
+  document.getElementById("gaelMeaning").innerText =
+    "GAEL Alternate Meaning: " + gaelMean.trim();
 }
+
 </script>
- 
+
 </body>
 </html>
+
+
+
+  
